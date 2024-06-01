@@ -1,66 +1,92 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jipange Sales Tracker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta charset="utf-8">
+  <title>Sales Tracker</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <header>
-        <div class="navbar">
-            <div class="logo">SalesTracker</div>
-        </div>
-    </header>
+<div class="container">
+  <h1>Jipange Tracker</h1>
+  <form action="/add" method="POST">
+    <div class="form-group">
+      <label for="userName">Your Name</label>
+      <input type="text" class="form-control" id="userName" name="userName" required>
+    </div>
+    <div class="form-group">
+      <label for="customerName">Customer Name</label>
+      <select class="form-control" id="customerName" name="customerName" required>
+        <option value="">Select Customer</option>
+        {% for customer in customers %}
+        <option value="{{ customer }}">{{ customer }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="productName">Product Name</label>
+      <select class="form-control" id="productName" name="productName" required>
+        <option value="">Select Product</option>
+        {% for product in products %}
+        <option value="{{ product['name'] }}" data-price="{{ product['price'] }}">{{ product['name'] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="productPrice">Product Price</label>
+      <input type="number" step="0.01" class="form-control" id="productPrice" name="productPrice" required readonly>
+    </div>
+    <div class="form-group">
+      <label for="productQuantity">Product Quantity</label>
+      <input type="number" class="form-control" id="productQuantity" name="productQuantity" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Sale</button>
+  </form>
+  <h2 class="mt-4">Sales Records</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>User Name</th>
+        <th>Customer Name</th>
+        <th>Product Name</th>
+        <th>Product Price</th>
+        <th>Product Quantity</th>
+        <th>Total Sale</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in sales %}
+      <tr>
+        <td>{{ sale.user_name }}</td>
+        <td>{{ sale.customer_name }}</td>
+        <td>{{ sale.product_name }}</td>
+        <td>{{ sale.product_price }}</td>
+        <td>{{ sale.product_quantity }}</td>
+        <td>{{ sale.total_sale }}</td>
+        <td>{{ sale.date }}</td>
+        <td>
+          <a href="/edit/{{ sale.id }}" class="btn btn-warning">Edit</a>
+          <a href="/delete/{{ sale.id }}" class="btn btn-danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h3>Cumulative Sales: ${{ cumulative_sales }}</h3>
+  <h3>Monthly Target: ${{ monthly_target }}</h3>
+</div>
 
-    <section class="header-section">
-        <h1>Jipange Tracker</h1>
-        <p id="date-time"></p>
-    </section>
+<script>
+  $(document).ready(function() {
+    $('#productName').change(function() {
+      var price = $(this).find(':selected').data('price');
+      $('#productPrice').val(price);
+    });
+  });
+</script>
 
-    <section class="input-section">
-        <form id="salesForm">
-            <div class="form-group">
-                <label for="userName">Your Name:</label>
-                <input type="text" id="userName" name="userName" required>
-            </div>
-            <div class="form-group">
-                <label for="customerName">Customer Name:</label>
-                <select id="customerName" name="customerName" required>
-                    <option value="">Select Customer</option>
-                    {% for customer in customers %}
-                    <option value="{{ customer }}">{{ customer }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="productName">Product Name:</label>
-                <select id="productName" name="productName" required>
-                    <option value="">Select Product</option>
-                    {% for product in products %}
-                    <option value="{{ product.name }}" data-price="{{ product.price }}">{{ product.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="productPrice">Product Price:</label>
-                <input type="number" id="productPrice" name="productPrice" step="0.01" readonly required>
-            </div>
-            <div class="form-group">
-                <label for="productQuantity">Product Quantity:</label>
-                <input type="number" id="productQuantity" name="productQuantity" required>
-            </div>
-            <button type="submit">Add Sale</button>
-        </form>
-    </section>
-
-    <section class="sales-summary">
-        <h2>Sales Summary</h2>
-        <p>Total Sales: $<span id="totalSales">{{ sales_data.total_sales }}</span></p>
-        <p>Monthly Target: $<span id="monthlyTarget">{{ sales_data.monthly_target }}</span></p>
-        <p>Cumulative Sales: $<span id="cumulativeSales">{{ sales_data.cumulative_sales }}</span></p>
-    </section>
-
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 </html>
+
