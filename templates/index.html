@@ -1,92 +1,184 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Sales Tracker</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-<div class="container">
-  <h1>Jipange Tracker</h1>
-  <form action="/add" method="POST">
-    <div class="form-group">
-      <label for="userName">Your Name</label>
-      <input type="text" class="form-control" id="userName" name="userName" required>
-    </div>
-    <div class="form-group">
-      <label for="customerName">Customer Name</label>
-      <select class="form-control" id="customerName" name="customerName" required>
-        <option value="">Select Customer</option>
-        {% for customer in customers %}
-        <option value="{{ customer }}">{{ customer }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="productName">Product Name</label>
-      <select class="form-control" id="productName" name="productName" required>
-        <option value="">Select Product</option>
-        {% for product in products %}
-        <option value="{{ product['name'] }}" data-price="{{ product['price'] }}">{{ product['name'] }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="productPrice">Product Price</label>
-      <input type="number" step="0.01" class="form-control" id="productPrice" name="productPrice" required readonly>
-    </div>
-    <div class="form-group">
-      <label for="productQuantity">Product Quantity</label>
-      <input type="number" class="form-control" id="productQuantity" name="productQuantity" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Add Sale</button>
-  </form>
-  <h2 class="mt-4">Sales Records</h2>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>User Name</th>
-        <th>Customer Name</th>
-        <th>Product Name</th>
-        <th>Product Price</th>
-        <th>Product Quantity</th>
-        <th>Total Sale</th>
-        <th>Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sale in sales %}
-      <tr>
-        <td>{{ sale.user_name }}</td>
-        <td>{{ sale.customer_name }}</td>
-        <td>{{ sale.product_name }}</td>
-        <td>{{ sale.product_price }}</td>
-        <td>{{ sale.product_quantity }}</td>
-        <td>{{ sale.total_sale }}</td>
-        <td>{{ sale.date }}</td>
-        <td>
-          <a href="/edit/{{ sale.id }}" class="btn btn-warning">Edit</a>
-          <a href="/delete/{{ sale.id }}" class="btn btn-danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <h3>Cumulative Sales: ${{ cumulative_sales }}</h3>
-  <h3>Monthly Target: ${{ monthly_target }}</h3>
-</div>
+    <nav class="navbar">
+        <a class="navbar-brand" href="#">Sales Tracker</a>
+        <div class="navbar-links">
+            <a href="/">Home</a>
+            <a href="#">Reports</a>
+            <a href="#">Goals</a>
+            <a href="#">Pipelines</a>
+            <a href="#">Incentives</a>
+            <a href="#">Settings</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <header>
+            <h1>Welcome to Jipange Tracker, {{ current_user.username }}!</h1>
+            <h3>Current Date and Time: {{ datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S') }}</h3>
+            <h2>Cumulative Sales: ${{ cumulative_sales }}</h2>
+            <h2>Monthly Target: ${{ monthly_target }}</h2>
+        </header>
 
-<script>
-  $(document).ready(function() {
-    $('#productName').change(function() {
-      var price = $(this).find(':selected').data('price');
-      $('#productPrice').val(price);
-    });
-  });
-</script>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+        <hr>
+        <form method="POST" action="{{ url_for('add_sale') }}">
+            <div class="form-group">
+                <label for="userName">User Name</label>
+                <input type="text" class="form-control" id="userName" name="userName" value="{{ current_user.username }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="customerName">Customer Name</label>
+                <select class="form-control" id="customerName" name="customerName" required>
+                    {% for customer in customers %}
+                    <option value="{{ customer }}">{{ customer }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <select class="form-control" id="productName" name="productName" required>
+                    {% for product in products %}
+                    <option value="{{ product.name }}" data-price="{{ product.price }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="productPrice">Product Price</label>
+                <input type="number" class="form-control" id="productPrice" name="productPrice" step="0.01" required readonly>
+            </div>
+            <div class="form-group">
+                <label for="productQuantity">Product Quantity</label>
+                <input type="number" class="form-control" id="productQuantity" name="productQuantity" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Sale</button>
+        </form>
+        <hr>
+        <h3>Sales Records</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User Name</th>
+                    <th>Customer Name</th>
+                    <th>Product Name</th>
+                    <th>Product Price</th>
+                    <th>Product Quantity</th>
+                    <th>Total Sale</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                    <td>{{ sale.user_name }}</td>
+                    <td>{{ sale.customer_name }}</td>
+                    <td>{{ sale.product_name }}</td>
+                    <td>{{ sale.product_price }}</td>
+                    <td>{{ sale.product_quantity }}</td>
+                    <td>{{ sale.total_sale }}</td>
+                    <td>{{ sale.date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_sale', id=sale.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{{ url_for('delete_sale', id=sale.id) }}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const productSelect = document.getElementById('productName');
+            const productPriceInput = document.getElementById('productPrice');
 
+            productSelect.addEventListener('change', (event) => {
+                const selectedOption = event.target.selectedOptions[0];
+                const price = selectedOption.getAttribute('data-price');
+                productPriceInput.value = price;
+            });
+        });
+    </script>
+</body>
+</html>
+        <!-- </section>
+        <section class="sales-records">
+            <h2>Sales Records</h2>
+            <ul>
+                {% for sale in sales %}
+                    <li>{{ sale.date }} - {{ sale.user_name }} sold {{ sale.product_quantity }} of {{ sale.product_name }} to {{ sale.customer_name }} for ${{ sale.total_sale }} 
+                    <a href="/edit/{{ sale.id }}">Edit</a> | <a href="/delete/{{ sale.id }}">Delete</a></li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html> -->
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Tracker</title>
+</head>
+<body>
+    <h1>Welcome, {{ current_user.username }}</h1>
+    <h3>Current Date and Time: {{ datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S') }}</h3>
+    <h2>Cumulative Sales: ${{ cumulative_sales }}</h2>
+    <h2>Monthly Target: ${{ monthly_target }}</h2>
+    <form action="/add" method="POST">
+        <label for="userName">User Name:</label>
+        <input type="text" id="userName" name="userName" value="{{ current_user.username }}" readonly><br><br>
+        <label for="customerName">Customer Name:</label>
+        <select id="customerName" name="customerName">
+            {% for customer in customers %}
+                <option value="{{ customer }}">{{ customer }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="productName">Product Name:</label>
+        <select id="productName" name="productName" onchange="updatePrice()">
+            {% for product in products %}
+                <option value="{{ product.name }}" data-price="{{ product.price }}">{{ product.name }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="productPrice">Product Price:</label>
+        <input type="text" id="productPrice" name="productPrice" readonly><br><br>
+        <label for="productQuantity">Product Quantity:</label>
+        <input type="number" id="productQuantity" name="productQuantity" min="1" required><br><br>
+        <button type="submit">Add Sale</button>
+    </form>
+
+    <h2>Sales Records</h2>
+    <ul>
+        {% for sale in sales %}
+            <li>{{ sale.date }} - {{ sale.user_name }} sold {{ sale.product_quantity }} of {{ sale.product_name }} to {{ sale.customer_name }} for ${{ sale.total_sale }} 
+            <a href="/edit/{{ sale.id }}">Edit</a> | <a href="/delete/{{ sale.id }}">Delete</a></li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        function updatePrice() {
+            const productSelect = document.getElementById('productName');
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const price = selectedOption.getAttribute('data-price');
+            document.getElementById('productPrice').value = price;
+        }
+    </script>
 </body>
 </html>
 
+
+ -->

@@ -12,6 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const productNameSelect = document.getElementById('productName');
     const productPriceInput = document.getElementById('productPrice');
 
+    function updatePrice() {
+        const productDropdown = document.getElementById('productName');
+        const selectedProduct = productDropdown.options[productDropdown.selectedIndex];
+        const price = selectedProduct.getAttribute('data-price');
+        document.getElementById('productPrice').value = price;
+    }
+    
     productNameSelect.addEventListener('change', (event) => {
         const selectedOption = event.target.selectedOptions[0];
         const price = selectedOption.getAttribute('data-price');
