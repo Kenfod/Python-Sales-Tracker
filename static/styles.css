@@ -104,6 +104,16 @@ body {
     text-decoration: underline;
 }
 
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand .logo {
+    height: 80px;
+    margin-right: 10px;
+}
+
 /* Header */
 header {
     text-align: center;
