@@ -23,8 +23,13 @@
         <header>
             <h1>Welcome to Jipange Tracker, {{ current_user.username }}!</h1>
             <h3>Current Date and Time: {{ datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S') }}</h3>
-            <h2>Cumulative Sales: ${{ cumulative_sales }}</h2>
-            <h2>Monthly Target: ${{ monthly_target }}</h2>
+            <h2>Monthly Target: KShs.{{ monthly_target }}</h2>
+            <h2>Cumulative Sales: KShs.{{ cumulative_sales }}</h2>
+            {% if target_balance > 0 %}
+                <h2 style="color: red;">Target Balance: KShs.{{ target_balance }}</h2>
+            {% else %}
+                <h2 style="color: green;">Target Surpassed by: KShs.{{ -target_balance }}</h2>
+            {% endif %}
         </header>
 
         <hr>
@@ -83,7 +88,7 @@
                     <td>{{ sale.product_price }}</td>
                     <td>{{ sale.product_quantity }}</td>
                     <td>{{ sale.total_sale }}</td>
-                    <td>{{ sale.date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ sale.date.strftime('%d-%m-%Y %H:%M:%S') }}</td>
                     <td>
                         <a href="{{ url_for('edit_sale', id=sale.id) }}" class="btn btn-warning btn-sm">Edit</a>
                         <a href="{{ url_for('delete_sale', id=sale.id) }}" class="btn btn-danger btn-sm">Delete</a>

@@ -95,15 +95,24 @@ def logout():
 def index():
     sales = Sale.query.all()
     cumulative_sales = sum(sale.total_sale for sale in sales)
-    monthly_target = 5000.0
+    monthly_target = 200000
     customers = ['Customer A', 'Customer B', 'Customer C']
     products = [
         {'name': 'Product 1', 'price': 100},
         {'name': 'Product 2', 'price': 200},
         {'name': 'Product 3', 'price': 300}
     ]
-    return render_template('index.html', sales=sales, cumulative_sales=cumulative_sales, monthly_target=monthly_target, customers=customers, products=products, datetime=datetime)
+    # return render_template('index.html', sales=sales, cumulative_sales=cumulative_sales, monthly_target=monthly_target, customers=customers, products=products, datetime=datetime)
 
+    target_balance = monthly_target - cumulative_sales
+    return render_template('index.html', 
+                           sales=sales, 
+                           cumulative_sales=cumulative_sales, 
+                           monthly_target=monthly_target, 
+                           customers=customers, 
+                           products=products, 
+                           target_balance=target_balance, 
+                           datetime=datetime)
 
 @app.route('/add', methods=['POST'])
 @login_required
