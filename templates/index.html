@@ -16,18 +16,17 @@
             <a href="#">Pipelines</a>
             <a href="#">Incentives</a>
             <a href="#">Settings</a>
-            <a href="/logout">Logout</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
         </div>
     </nav>
     <div class="container">
         <header>
             <h1>Welcome to Jipange Tracker, {{ current_user.username }}!</h1>
-            <h3>Current Date and Time: {{ datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S') }}</h3>
+            <h3>Current Date and Time: {{ datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S') }}</h3>
             <h2>Cumulative Sales: ${{ cumulative_sales }}</h2>
             <h2>Monthly Target: ${{ monthly_target }}</h2>
         </header>
 
-        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
         <hr>
         <form method="POST" action="{{ url_for('add_sale') }}">
             <div class="form-group">
