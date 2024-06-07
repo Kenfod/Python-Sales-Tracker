@@ -79,7 +79,7 @@ body {
     max-width: 800px;
     margin: 50px auto;
     padding: 20px;
-    background-color: #fff;
+    background-color: rgb(213, 243, 237);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
 }
@@ -134,7 +134,7 @@ form {
 }
 
 .form-control {
-    width: 100%;
+    width: 80%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
