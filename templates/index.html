@@ -10,12 +10,12 @@
     <nav class="navbar">
         <a class="navbar-brand" href="#"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo"></a>
         <div class="navbar-links">
-            <a href="/">Home</a>
-            <a href="#">Reports</a>
-            <a href="#">Goals</a>
-            <a href="#">Pipelines</a>
-            <a href="#">Incentives</a>
-            <a href="#">Settings</a>
+            <a href="/" class="btn btn-navbar-links">Home</a>
+            <a href="#" class="btn btn-navbar-links">Reports</a>
+            <a href="#" class="btn btn-navbar-links">Goals</a>
+            <a href="#" class="btn btn-navbar-links">Pipelines</a>
+            <a href="#" class="btn btn-navbar-links">Incentives</a>
+            <a href="#" class="btn btn-navbar-links">Settings</a>
             <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
         </div>
     </nav>
