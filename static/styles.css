@@ -111,6 +111,7 @@ form {
 
 .btn-primary {
     background-color: #007bff;
+    font-weight: bold;
     color: #fff;
 }
 
