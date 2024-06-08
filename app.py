@@ -6,6 +6,7 @@ from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sales.db'
@@ -22,6 +23,19 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f'<User {self.username}>'
+    
+
+# Define your local time zone
+local_tz = pytz.timezone('Africa/Nairobi')  # Replace 'Your/LocalTimezone' with your actual timezone, e.g., 'America/New_York'
+
+
+def get_local_time():
+    utc_now = datetime.utcnow().replace(tzinfo=pytz.utc)
+    local_now = utc_now.astimezone(local_tz)
+    return local_now.strftime('%d-%m-%Y %H:%M:%S')
+
+# def get_local_time():
+#     return datetime.now(local_tz)
 
 class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,7 +45,8 @@ class Sale(db.Model):
     product_price = db.Column(db.Float, nullable=False)
     product_quantity = db.Column(db.Integer, nullable=False)
     total_sale = db.Column(db.Float, nullable=False)
-    date = db.Column(db.DateTime, default=datetime.utcnow)
+    date = db.Column(db.DateTime, default=get_local_time)  # Use local time
+    # date = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f'<Sale {self.id}>'
@@ -104,6 +119,8 @@ def index():
     ]
     # return render_template('index.html', sales=sales, cumulative_sales=cumulative_sales, monthly_target=monthly_target, customers=customers, products=products, datetime=datetime)
 
+    current_local_time = get_local_time()
+
     target_balance = monthly_target - cumulative_sales
     return render_template('index.html', 
                            sales=sales, 
@@ -111,8 +128,10 @@ def index():
                            monthly_target=monthly_target, 
                            customers=customers, 
                            products=products, 
-                           target_balance=target_balance, 
-                           datetime=datetime)
+                           target_balance=target_balance,
+                           current_local_time=current_local_time)
+
+                        #    datetime=datetime)
 
 @app.route('/add', methods=['POST'])
 @login_required

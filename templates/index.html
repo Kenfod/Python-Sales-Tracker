@@ -22,7 +22,7 @@
     <div class="container">
         <header>
             <h1>Welcome to Jipange Tracker, {{ current_user.username }}!</h1>
-            <h3>Current Date and Time: {{ datetime.utcnow().strftime('%d-%m-%Y %H:%M:%S') }}</h3>
+            <h3>Current Date and Time: {{ current_local_time }}</h3>
             <h2>Monthly Target: KShs.{{ monthly_target }}</h2>
             <h2>Cumulative Sales: KShs.{{ cumulative_sales }}</h2>
             {% if target_balance > 0 %}
