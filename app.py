@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
     
 
 # Define your local time zone
-local_tz = pytz.timezone('Africa/Nairobi')  # Replace 'Your/LocalTimezone' with your actual timezone, e.g., 'America/New_York'
+local_tz = pytz.timezone('Africa/Nairobi')
 
 
 def get_local_time():
@@ -34,8 +34,6 @@ def get_local_time():
     local_now = utc_now.astimezone(local_tz)
     return local_now.strftime('%d-%m-%Y %H:%M:%S')
 
-# def get_local_time():
-#     return datetime.now(local_tz)
 
 class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -117,7 +115,6 @@ def index():
         {'name': 'Product 2', 'price': 200},
         {'name': 'Product 3', 'price': 300}
     ]
-    # return render_template('index.html', sales=sales, cumulative_sales=cumulative_sales, monthly_target=monthly_target, customers=customers, products=products, datetime=datetime)
 
     current_local_time = get_local_time()
 
@@ -130,8 +127,6 @@ def index():
                            products=products, 
                            target_balance=target_balance,
                            current_local_time=current_local_time)
-
-                        #    datetime=datetime)
 
 @app.route('/add', methods=['POST'])
 @login_required

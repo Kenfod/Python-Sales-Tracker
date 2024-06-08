@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <a class="navbar-brand" href="#">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">JIPANGE SALES TRACKER - Smart Sales!!
         </a>
     </nav>
     <div class="container">
@@ -32,42 +32,3 @@
     </div>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h2>Login</h2>
-        <form action="{{ url_for('login') }}" method="POST">
-            {{ form.hidden_tag() }}
-            <div>
-                {{ form.username.label }}<br>
-                {{ form.username(size=32) }}<br>
-            </div>
-            <div>
-                {{ form.password.label }}<br>
-                {{ form.password(size=32) }}<br>
-            </div>
-            <div>
-                {{ form.submit(class="btn-primary") }}
-            </div>
-        </form>
-    </div>
-</body>
-</html> -->

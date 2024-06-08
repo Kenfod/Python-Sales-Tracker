@@ -8,7 +8,7 @@
 </head>
 <body>
     <nav class="navbar">
-        <a class="navbar-brand" href="#"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo"></a>
+        <a class="navbar-brand" href="#"><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">JIPANGE SALES TRACKER - Smart Sales!!</a>
         <div class="navbar-links">
             <a href="/" class="btn btn-navbar-links">Home</a>
             <a href="#" class="btn btn-navbar-links">Reports</a>
@@ -112,20 +112,6 @@
     </script>
 </body>
 </html>
-        <!-- </section>
-        <section class="sales-records">
-            <h2>Sales Records</h2>
-            <ul>
-                {% for sale in sales %}
-                    <li>{{ sale.date }} - {{ sale.user_name }} sold {{ sale.product_quantity }} of {{ sale.product_name }} to {{ sale.customer_name }} for ${{ sale.total_sale }} 
-                    <a href="/edit/{{ sale.id }}">Edit</a> | <a href="/delete/{{ sale.id }}">Delete</a></li>
-                {% endfor %}
-            </ul>
-        </section>
-    </div>
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
-</body>
-</html> -->
 
 
 
