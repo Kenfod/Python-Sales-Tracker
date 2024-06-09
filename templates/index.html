@@ -30,7 +30,7 @@
             {% if target_balance > 0 %}
                 <h2 style="color: red;">Target Balance: KShs.{{ formatted_target_balance }}</h2>
             {% else %}
-                <h2 style="color: green;">Target Surpassed by: KShs.{{ (formatted_target_balance|safe) }}</h2>
+                <h2 style="color: green;">Target Surpassed by: KShs.{{ (formatted_target_balance2) }}</h2>
             {% endif %}
         </header>
         <hr>
@@ -113,8 +113,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-

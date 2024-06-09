@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
+from flask_cors import CORS
 from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -23,21 +24,22 @@ locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 def format_currency(value):
     return locale.currency(value, grouping=True)
 
+# Example data for API
+users = {}
+sales_data = []
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
-
     def __repr__(self):
         return f'<User {self.username}>'
     
-
 # Define your local time zone
 local_tz = pytz.timezone('Africa/Nairobi')
-
-
 def get_local_time():
     utc_now = datetime.utcnow().replace(tzinfo=pytz.utc)
+    # datetime.datetime.now(datetime.UTC)
     local_now = utc_now.astimezone(local_tz)
     return local_now.strftime('%d-%m-%Y %H:%M:%S')
 
@@ -56,7 +58,7 @@ class Sale(db.Model):
 
     def __repr__(self):
         return f'<Sale {self.id}>'
-
+    
 # Ensure the database tables are created within the application context
 with app.app_context():
     db.create_all()
@@ -86,11 +88,14 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = generate_password_hash(form.password.data, method='sha256')
+        
         new_user = User(username=form.username.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
+
         flash('Your account has been created!', 'success')
         return redirect(url_for('login'))
+    
     return render_template('register.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -119,10 +124,11 @@ def index():
     monthly_target = 100000.0
 
     target_balance = monthly_target - cumulative_sales
+    target_balance2 =  cumulative_sales - monthly_target
     if target_balance > 0:
         formatted_target_balance =format_currency(target_balance)
     else:
-        formatted_target_balance = format_currency(target_balance)
+        formatted_target_balance2 = format_currency(target_balance2)
 
     customers = ['Customer A', 'Customer B', 'Customer C']
     products = [
@@ -130,22 +136,21 @@ def index():
         {'name': 'Product 2', 'price': 200},
         {'name': 'Product 3', 'price': 300}
     ]
-
     current_local_time = get_local_time()
 
-    target_balance = monthly_target - cumulative_sales
     return render_template('index.html', 
                            sales=sales, 
                            formatted_cumulative_sales=format_currency(cumulative_sales), 
                            formatted_monthly_target=format_currency(monthly_target), 
-                           formatted_target_balance=formatted_target_balance,
+                           formatted_target_balance=format_currency(target_balance),
+                           formatted_target_balance2=format_currency(target_balance2),
                            customers=customers, 
                            products=products, 
                            target_balance=target_balance,
                            format_currency=format_currency,
                            current_local_time=current_local_time)
 
-@app.route('/add', methods=['POST'])
+@app.route('/add_sale', methods=['POST'])
 @login_required
 def add_sale():
     user_name = request.form['userName']
@@ -171,7 +176,7 @@ def add_sale():
     except Exception as e:
         return f"An error occurred while adding the sale: {e}"
 
-@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+@app.route('/edit_sale/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_sale(id):
     sale = Sale.query.get_or_404(id)
@@ -188,7 +193,7 @@ def edit_sale(id):
         sale.product_price = float(request.form['productPrice'])
         sale.product_quantity = int(request.form['productQuantity'])
         sale.total_sale = sale.product_price * sale.product_quantity
-
+        
         try:
             db.session.commit()
             return redirect('/')
@@ -197,7 +202,7 @@ def edit_sale(id):
     else:
         return render_template('edit.html', sale=sale, customers=customers, products=products)
 
-@app.route('/delete/<int:id>')
+@app.route('/delete_sale/<int:id>')
 @login_required
 def delete_sale(id):
     sale = Sale.query.get_or_404(id)
@@ -207,6 +212,70 @@ def delete_sale(id):
         return redirect('/')
     except Exception as e:
         return f"An error occurred while deleting the sale: {e}"
+    
+# API Endpoints for Flutter app
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    hashed_password = generate_password_hash(password, method='sha256')
+    new_user = User(username=username, password=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'message': 'User registered successfully'})
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    user = User.query.filter_by(username=username).first()
+    if user and check_password_hash(user.password, password):
+        login_user(user)
+        return jsonify({'message': 'User logged in successfully'})
+    return jsonify({'message': 'Invalid username or password'}), 401
+
+@app.route('/api/sales', methods=['GET', 'POST'])
+def api_manage_sales():
+    if request.method == 'POST':
+        data = request.json
+        new_sale = Sale(
+            user_name=data.get('user_name'),
+            customer_name=data.get('customer_name'),
+            product_name=data.get('product_name'),
+            product_price=data.get('product_price'),
+            product_quantity=data.get('product_quantity')
+        )
+        db.session.add(new_sale)
+        db.session.commit()
+        return jsonify({'message': 'Sale added successfully'})
+    sales = Sale.query.all()
+    return jsonify([{
+        'id': sale.id,
+        'user_name': sale.user_name,
+        'customer_name': sale.customer_name,
+        'product_name': sale.product_name,
+        'product_price': sale.product_price,
+        'product_quantity': sale.product_quantity,
+        'date': sale.date.strftime('%Y-%m-%d %H:%M:%S')
+    } for sale in sales])
+
+@app.route('/api/sales/<int:sale_id>', methods=['PUT', 'DELETE'])
+def api_update_delete_sale(sale_id):
+    sale = Sale.query.get_or_404(sale_id)
+    if request.method == 'PUT':
+        data = request.json
+        sale.customer_name = data.get('customer_name')
+        sale.product_name = data.get('product_name')
+        sale.product_price = data.get('product_price')
+        sale.product_quantity = data.get('product_quantity')
+        db.session.commit()
+        return jsonify({'message': 'Sale updated successfully'})
+    elif request.method == 'DELETE':
+        db.session.delete(sale)
+        db.session.commit()
+        return jsonify({'message': 'Sale deleted successfully'})
 
 if __name__ == '__main__':
     app.run(debug=True)
