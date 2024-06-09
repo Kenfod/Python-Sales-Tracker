@@ -23,15 +23,16 @@
         <header>
             <h1>Welcome to Jipange Tracker, {{ current_user.username }}!</h1>
             <h3>Current Date and Time: {{ current_local_time }}</h3>
-            <h2>Monthly Target: KShs.{{ monthly_target }}</h2>
-            <h2>Cumulative Sales: KShs.{{ cumulative_sales }}</h2>
+
+            <h2>Cumulative Sales: KShs.{{ formatted_cumulative_sales }}</h2>
+            <h2>Monthly Target: KShs.{{ formatted_monthly_target }}</h2>
+
             {% if target_balance > 0 %}
-                <h2 style="color: red;">Target Balance: KShs.{{ target_balance }}</h2>
+                <h2 style="color: red;">Target Balance: KShs.{{ formatted_target_balance }}</h2>
             {% else %}
-                <h2 style="color: green;">Target Surpassed by: KShs.{{ -target_balance }}</h2>
+                <h2 style="color: green;">Target Surpassed by: KShs.{{ (formatted_target_balance|safe) }}</h2>
             {% endif %}
         </header>
-
         <hr>
         <form method="POST" action="{{ url_for('add_sale') }}">
             <div class="form-group">
@@ -85,9 +86,9 @@
                     <td>{{ sale.user_name }}</td>
                     <td>{{ sale.customer_name }}</td>
                     <td>{{ sale.product_name }}</td>
-                    <td>{{ sale.product_price }}</td>
+                    <td>{{ format_currency(sale.product_price) }}</td>
                     <td>{{ sale.product_quantity }}</td>
-                    <td>{{ sale.total_sale }}</td>
+                    <td>{{ format_currency(sale.total_sale) }}</td>
                     <td>{{ sale.date.strftime('%d-%m-%Y %H:%M:%S') }}</td>
                     <td>
                         <a href="{{ url_for('edit_sale', id=sale.id) }}" class="btn btn-warning btn-sm">Edit</a>

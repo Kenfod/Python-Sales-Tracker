@@ -6,6 +6,7 @@ from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import locale
 import pytz
 
 app = Flask(__name__)
@@ -15,6 +16,12 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+# Set your locale for currency formatting
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
+def format_currency(value):
+    return locale.currency(value, grouping=True)
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,6 +41,8 @@ def get_local_time():
     local_now = utc_now.astimezone(local_tz)
     return local_now.strftime('%d-%m-%Y %H:%M:%S')
 
+def format_currency(value):
+    return f"{value:,.0f}".replace(".", ",")
 
 class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,7 +53,6 @@ class Sale(db.Model):
     product_quantity = db.Column(db.Integer, nullable=False)
     total_sale = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, default=get_local_time)  # Use local time
-    # date = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f'<Sale {self.id}>'
@@ -108,7 +116,14 @@ def logout():
 def index():
     sales = Sale.query.all()
     cumulative_sales = sum(sale.total_sale for sale in sales)
-    monthly_target = 200000
+    monthly_target = 100000.0
+
+    target_balance = monthly_target - cumulative_sales
+    if target_balance > 0:
+        formatted_target_balance =format_currency(target_balance)
+    else:
+        formatted_target_balance = format_currency(target_balance)
+
     customers = ['Customer A', 'Customer B', 'Customer C']
     products = [
         {'name': 'Product 1', 'price': 100},
@@ -121,11 +136,13 @@ def index():
     target_balance = monthly_target - cumulative_sales
     return render_template('index.html', 
                            sales=sales, 
-                           cumulative_sales=cumulative_sales, 
-                           monthly_target=monthly_target, 
+                           formatted_cumulative_sales=format_currency(cumulative_sales), 
+                           formatted_monthly_target=format_currency(monthly_target), 
+                           formatted_target_balance=formatted_target_balance,
                            customers=customers, 
                            products=products, 
                            target_balance=target_balance,
+                           format_currency=format_currency,
                            current_local_time=current_local_time)
 
 @app.route('/add', methods=['POST'])
