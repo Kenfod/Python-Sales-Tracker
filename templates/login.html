@@ -12,6 +12,16 @@
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">JIPANGE SALES TRACKER - Smart Sales!!
         </a>
     </nav>
+     <!-- Flash message block -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+  <div class="container mt-3">
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}" style="color: red;"><strong>{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endwith %}
     <div class="container">
         <h2>Login</h2>
         <form method="POST" action="{{ url_for('login') }}">
