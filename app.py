@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
 from flask_cors import CORS
-from wtforms import StringField, PasswordField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -17,12 +17,13 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+CORS(app) 
 
 # Set your locale for currency formatting
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+locale.setlocale(locale.LC_ALL, '')
 
 def format_currency(value):
-    return locale.currency(value, grouping=True)
+    return f"{value:,.2f}".replace(",", ".")
 
 # Example data for API
 users = {}
@@ -39,12 +40,8 @@ class User(db.Model, UserMixin):
 local_tz = pytz.timezone('Africa/Nairobi')
 def get_local_time():
     utc_now = datetime.utcnow().replace(tzinfo=pytz.utc)
-    # datetime.datetime.now(datetime.UTC)
     local_now = utc_now.astimezone(local_tz)
-    return local_now.strftime('%d-%m-%Y %H:%M:%S')
-
-def format_currency(value):
-    return f"{value:,.0f}".replace(".", ",")
+    return local_now.isoformat()
 
 class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -54,12 +51,12 @@ class Sale(db.Model):
     product_price = db.Column(db.Float, nullable=False)
     product_quantity = db.Column(db.Integer, nullable=False)
     total_sale = db.Column(db.Float, nullable=False)
-    date = db.Column(db.DateTime, default=get_local_time)  # Use local time
+    date = db.Column(db.DateTime, default=datetime.utcnow)  # Use UTC time
 
     def __repr__(self):
         return f'<Sale {self.id}>'
     
-# Ensure the database tables are created within the application context
+# To ensure the database tables are created within the application context
 with app.app_context():
     db.create_all()
 
@@ -124,11 +121,9 @@ def index():
     monthly_target = 100000.0
 
     target_balance = monthly_target - cumulative_sales
-    target_balance2 =  cumulative_sales - monthly_target
-    if target_balance > 0:
-        formatted_target_balance =format_currency(target_balance)
-    else:
-        formatted_target_balance2 = format_currency(target_balance2)
+    target_balance2 = cumulative_sales - monthly_target
+    formatted_target_balance = format_currency(target_balance) if target_balance > 0 else None
+    formatted_target_balance2 = format_currency(target_balance2) if target_balance <= 0 else None
 
     customers = ['Customer A', 'Customer B', 'Customer C']
     products = [
@@ -142,8 +137,8 @@ def index():
                            sales=sales, 
                            formatted_cumulative_sales=format_currency(cumulative_sales), 
                            formatted_monthly_target=format_currency(monthly_target), 
-                           formatted_target_balance=format_currency(target_balance),
-                           formatted_target_balance2=format_currency(target_balance2),
+                           formatted_target_balance=formatted_target_balance,
+                           formatted_target_balance2=formatted_target_balance2,
                            customers=customers, 
                            products=products, 
                            target_balance=target_balance,
@@ -258,7 +253,7 @@ def api_manage_sales():
         'product_name': sale.product_name,
         'product_price': sale.product_price,
         'product_quantity': sale.product_quantity,
-        'date': sale.date.strftime('%Y-%m-%d %H:%M:%S')
+        'date': sale.date.isoformat()
     } for sale in sales])
 
 @app.route('/api/sales/<int:sale_id>', methods=['PUT', 'DELETE'])
