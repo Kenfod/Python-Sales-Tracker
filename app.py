@@ -21,10 +21,16 @@ login_manager.login_view = 'login'
 CORS(app) 
 
 # Set your locale for currency formatting
-locale.setlocale(locale.LC_ALL, '')
+try:
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 def format_currency(value):
-    return f"{value:,.2f}".replace(",", ".")
+    return locale.currency(value, grouping=True)
+
+# def format_currency(value):
+#     return f"{value:,.2f}".replace(",", ".")
 
 # Example data for API
 users = {}
@@ -34,11 +40,11 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
-    
+   
     def __repr__(self):
         return f'<User {self.username}>'
     
-# Define your local time zone
+# Define local time zone
 local_tz = pytz.timezone('Africa/Nairobi')
 def get_local_time():
     utc_now = datetime.utcnow().replace(tzinfo=pytz.utc)
@@ -86,15 +92,12 @@ def load_user(user_id):
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data, method='sha256')
-        
+        hashed_password = generate_password_hash(form.password.data, method='pbkdf2:sha256')
         new_user = User(username=form.username.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
-
         flash('Your account has been created!', 'success')
         return redirect(url_for('login'))
-    
     return render_template('register.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -121,7 +124,6 @@ def index():
     sales = Sale.query.all()
     cumulative_sales = sum(sale.total_sale for sale in sales)
     monthly_target = 100000.0
-
     target_balance = monthly_target - cumulative_sales
     target_balance2 = cumulative_sales - monthly_target
     formatted_target_balance = format_currency(target_balance) if target_balance > 0 else None
@@ -216,7 +218,7 @@ def api_register():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    hashed_password = generate_password_hash(password, method='sha256')
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
     new_user = User(username=username, password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
@@ -276,3 +278,12 @@ def api_update_delete_sale(sale_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+
+
+
+
+
