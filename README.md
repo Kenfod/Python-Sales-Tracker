@@ -32,25 +32,25 @@ Jipange Sales Tracker is a web application built with Flask and a mobile applica
 <h2>Installation</h2>
 <h3>Backend (Flask)</h3>
 
-1.Clone the repository:
+1. Clone the repository:
 
 ```dart
 git clone https:https://github.com/Kenfod/Python-Sales-Tracker.git
 ```
-2.Create and activate a virtual environment:
+2. Create and activate a virtual environment:
 
 ```dart
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 ```
 
-3.Install the required dependencies:
+3. Install the required dependencies:
 
 ```dart
 pip install -r requirements.txt
 ```
 
-4.Set up the database:
+4. Set up the database:
 
 ```dart
 flask db init
@@ -58,7 +58,7 @@ flask db migrate -m "Initial migration."
 flask db upgrade
 ```
 
-5.Run the Flask application:
+5. Run the Flask application:
 
 ```dart
 python app.py
@@ -67,22 +67,22 @@ The server will start on ' http://127.0.0.1:5000 '
 
 <h3>Frontend (Flutter)</h3>
 
-1.Install Flutter:
+1. Install Flutter:
 Follow the instructions on the Flutter website to install Flutter on your system.
 
-2.Navigate to the Flutter project directory:
+2. Navigate to the Flutter project directory:
 
 ```dart
 cd flutter_app
 ```
 
-3.Install the required dependencies:
+3. Install the required dependencies:
 
 ```dart
 flutter pub get
 ```
 
-4.Run the Flutter application:
+4. Run the Flutter application:
 
 ```dart
 flutter run
@@ -102,21 +102,21 @@ flutter run
 
 <h3>Web Interface</h3>
 
-1.<b>Register:</b> Create a new user account by navigating to <b>'/register'</b>.
+1. <b>Register:</b> Create a new user account by navigating to <b>'/register'</b>.
 
-2.<b>Login:</b> Log in to the application at <b>'/login'</b>.
+2. <b>Login:</b> Log in to the application at <b>'/login'</b>.
 
-3.<b>Dashboard:</b> View the sales dashboard, add new sales, and monitor targets.<br><br>
+3. <b>Dashboard:</b> View the sales dashboard, add new sales, and monitor targets.<br><br>
 
 <h3>Mobile Interface</h3>
 
-1.<b>Home Screen:</b> Displays the current user, cumulative sales, and a list of all sales.
+1. <b>Home Screen:</b> Displays the current user, cumulative sales, and a list of all sales.
 
-2.<b>Add Sale:</b> Add new sales entries with customer and product details.
+2. <b>Add Sale:</b> Add new sales entries with customer and product details.
 
-3.<b>Edit Sale:</b> Modify existing sales entries.
+3. <b>Edit Sale:</b> Modify existing sales entries.
 
-4.<b>Delete Sale:</b> Remove sales entries.
+4. <b>Delete Sale:</b> Remove sales entries.
 
 <h2>API Endpoints</h2>
 <h3>User Management</h3>
