@@ -22,7 +22,7 @@ CORS(app)
 
 # Set your locale for currency formatting
 try:
-    locale.setlocale(locale.LC_ALL, '')
+    locale.setlocale(locale.LC_ALL, 'sw_KE.UTF-8')
 except locale.Error:
     locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
@@ -224,7 +224,8 @@ def api_register():
     db.session.commit()
     return jsonify({'message': 'User registered successfully'})
 
-@app.route('/api/login', methods=['POST'])
+@app.get("/")
+# @app.route('/api/login', methods=['POST'])
 def api_login():
     data = request.json
     username = data.get('username')
@@ -276,9 +277,21 @@ def api_update_delete_sale(sale_id):
         db.session.commit()
         return jsonify({'message': 'Sale deleted successfully'})
 
+@app.route('/api/username', methods=['GET'])
+@login_required
+def api_get_username():
+    return jsonify({'username': current_user.username})
+
+@app.route('/api/username', methods=['GET'])
+@login_required
+def get_username():
+    if current_user.is_authenticated:
+        return jsonify({'username': current_user.username})
+    return jsonify({'error': 'User not authenticated'}), 401
+
+
 if __name__ == '__main__':
     app.run(debug=True)
-
 
 
 

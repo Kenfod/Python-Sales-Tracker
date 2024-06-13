@@ -24,13 +24,13 @@
             <h1>Welcome to Jipange Tracker, {{ current_user.username }}!</h1>
             <h3>Current Date and Time: {{ current_local_time }}</h3>
 
-            <h2>Cumulative Sales: KShs.{{ formatted_cumulative_sales }}</h2>
-            <h2>Monthly Target: KShs.{{ formatted_monthly_target }}</h2>
+            <h2>Cumulative Sales: {{ formatted_cumulative_sales }}</h2>
+            <h2>Monthly Target:{{ formatted_monthly_target }}</h2>
 
             {% if target_balance > 0 %}
-                <h2 style="color: red;">Target Balance: KShs.{{ formatted_target_balance }}</h2>
+                <h2 style="color: red;">Target Balance: {{ formatted_target_balance }}</h2>
             {% else %}
-                <h2 style="color: green;">Target Surpassed by: KShs.{{ (formatted_target_balance2) }}</h2>
+                <h2 style="color: green;">Target Surpassed by: {{ (formatted_target_balance2) }}</h2>
             {% endif %}
 
         </header>
